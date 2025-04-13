@@ -10,6 +10,8 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.prefill.PreFillType
 import fi.orkas.rvtest.databinding.ActivityMainBinding
 import kotlinx.coroutines.launch
 
@@ -19,6 +21,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Glide.get(this).preFillBitmapPool(PreFillType.Builder(POSTER_WIDTH, POSTER_HEIGHT))
 
         db =
             Room

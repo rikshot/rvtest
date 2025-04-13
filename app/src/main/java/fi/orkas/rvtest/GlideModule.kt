@@ -6,6 +6,9 @@ import android.util.Log
 import androidx.core.graphics.drawable.toDrawable
 import com.bumptech.glide.GlideBuilder
 import com.bumptech.glide.annotation.GlideModule
+import com.bumptech.glide.load.engine.bitmap_recycle.LruArrayPool
+import com.bumptech.glide.load.engine.bitmap_recycle.LruBitmapPool
+import com.bumptech.glide.load.engine.cache.LruResourceCache
 import com.bumptech.glide.module.AppGlideModule
 import com.bumptech.glide.request.RequestOptions
 import java.util.Locale
@@ -35,6 +38,9 @@ class GlideModule : AppGlideModule() {
         )
 
         builder
+            .setArrayPool(LruArrayPool(arrayPoolSize))
+            .setMemoryCache(LruResourceCache(memoryCacheSize))
+            .setBitmapPool(LruBitmapPool(bitmapPoolSize))
             .setDefaultRequestOptions(
                 RequestOptions()
                     .dontAnimate()

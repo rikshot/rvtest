@@ -75,7 +75,7 @@ class VerticalAdapter(internal val parent: MainActivity, private val viewCache: 
                 }
             )
             layoutManager =
-                LinearLayoutManager(parent.context, RecyclerView.HORIZONTAL, false).apply {
+                ExtraSpaceLinearLayoutManager(parent.context, RecyclerView.HORIZONTAL, false).apply {
                     initialPrefetchItemCount = 7
                 }
             setRecycledViewPool(recyclerViewPool)

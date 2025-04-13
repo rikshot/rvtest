@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="180px"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:ignore="PxUsage">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/poster"
+        android:layout_width="180px"
+        android:layout_height="267px"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/rounded_corners"
+        android:contentDescription="@string/poster"
+        tools:ignore="PxUsage" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/title"
+        style="@style/TextAppearance.AppCompat.Subhead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:ellipsize="none"
+        android:maxWidth="180px"
+        android:maxLines="2"
+        android:scrollHorizontally="false"
+        app:emojiCompatEnabled="false" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/genre"
+        style="@style/TextAppearance.AppCompat.Body1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:emojiCompatEnabled="false" />
+</LinearLayout>

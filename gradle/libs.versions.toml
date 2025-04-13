@@ -1,0 +1,41 @@
+[versions]
+agp = "8.9.1"
+kotlin = "2.1.20"
+coreKtx = "1.16.0"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+appcompat = "1.7.0"
+activity = "1.10.1"
+recyclerview = "1.4.0"
+room = "2.7.0"
+ksp = "2.1.20-2.0.0"
+glide = "5.0.0-rc01"
+uiautomator = "2.3.0"
+benchmarkMacroJunit4 = "1.3.4"
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+glide-ksp = { group = "com.github.bumptech.glide", name = "ksp", version.ref = "glide" }
+glide-recyclerview = { group = "com.github.bumptech.glide", name = "recyclerview-integration", version = "4.16.0" }
+androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
+androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
+asynclayoutinflater = { group = "androidx.asynclayoutinflater", name = "asynclayoutinflater", version = "1.1.0" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+room = { id = "androidx.room", version.ref = "room" }
+android-test = { id = "com.android.test", version.ref = "agp" }
+

@@ -3,6 +3,7 @@ package fi.orkas.rvtest
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.net.toUri
+import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -12,6 +13,8 @@ import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
 import com.bumptech.glide.util.FixedPreloadSizeProvider
 import fi.orkas.rvtest.databinding.CardBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 
 const val POSTER_WIDTH = 180
 const val POSTER_HEIGHT = 267
@@ -19,7 +22,12 @@ const val POSTER_HEIGHT = 267
 class MediaViewHolder(val binding: CardBinding) : RecyclerView.ViewHolder(binding.root)
 
 class HorizontalAdapter(private val parent: VerticalAdapter, private val viewCache: ViewCache) :
-    ListAdapter<Media, MediaViewHolder>(diffCallback) {
+    ListAdapter<Media, MediaViewHolder>(
+        AsyncDifferConfig.Builder<Media>(diffCallback)
+            .setBackgroundThreadExecutor(
+                Dispatchers.Default.asExecutor()
+            ).build()
+    ) {
     internal val preloader: RecyclerViewPreloader<Media>
 
     init {

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.net.toUri
+import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
@@ -16,12 +17,19 @@ import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
 import com.bumptech.glide.util.FixedPreloadSizeProvider
 import fi.orkas.rvtest.databinding.CategoryBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 
 class CategoryViewHolder(val binding: CategoryBinding, val adapter: HorizontalAdapter) :
     RecyclerView.ViewHolder(binding.root)
 
 class VerticalAdapter(internal val parent: MainActivity, private val viewCache: ViewCache) :
-    ListAdapter<CategoryWithMedia, CategoryViewHolder>(diffCallback) {
+    ListAdapter<CategoryWithMedia, CategoryViewHolder>(
+        AsyncDifferConfig.Builder<CategoryWithMedia>(diffCallback)
+            .setBackgroundThreadExecutor(
+                Dispatchers.Default.asExecutor()
+            ).build()
+    ) {
     internal val preloader: RecyclerViewPreloader<Media>
     private val recyclerViewPool = RecyclerView.RecycledViewPool()
 

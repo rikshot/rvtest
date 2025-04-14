@@ -65,7 +65,6 @@ dependencies {
     implementation(libs.glide.recyclerview) {
         isTransitive = true
     }
-    implementation(libs.asynclayoutinflater)
     ksp(libs.androidx.room.compiler)
     ksp(libs.glide.ksp)
     testImplementation(libs.junit)

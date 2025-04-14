@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.net.toUri
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,7 +24,7 @@ import kotlinx.coroutines.asExecutor
 class CategoryViewHolder(val binding: CategoryBinding, val adapter: HorizontalAdapter) :
     RecyclerView.ViewHolder(binding.root)
 
-class VerticalAdapter(internal val parent: MainActivity, private val viewCache: ViewCache) :
+class VerticalAdapter(internal val parent: FragmentActivity, private val viewCache: ViewCache) :
     ListAdapter<CategoryWithMedia, CategoryViewHolder>(
         AsyncDifferConfig.Builder<CategoryWithMedia>(diffCallback)
             .setBackgroundThreadExecutor(

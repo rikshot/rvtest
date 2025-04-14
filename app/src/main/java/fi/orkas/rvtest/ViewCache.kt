@@ -4,11 +4,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ViewCache(private val activity: MainActivity) {
+class ViewCache(private val activity: FragmentActivity) {
     private val fakeParent = FrameLayout(activity)
     private val layoutInflater = LayoutInflater.from(activity)
 

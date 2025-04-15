@@ -5,10 +5,16 @@ plugins {
     alias(libs.plugins.room)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.secrets)
 }
 
 hilt {
     enableAggregatingTask = true
+}
+
+secrets {
+    propertiesFileName = "secret.properties"
+    defaultPropertiesFileName = "secret.default.properties"
 }
 
 android {
@@ -51,6 +57,7 @@ android {
         jvmTarget = "21"
     }
     buildFeatures {
+        buildConfig = true
         viewBinding = true
     }
     room {
@@ -75,6 +82,12 @@ dependencies {
     }
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.hilt.android)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.encoding)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
     ksp(libs.glide.ksp)

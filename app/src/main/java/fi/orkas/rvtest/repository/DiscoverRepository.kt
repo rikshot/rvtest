@@ -2,13 +2,13 @@ package fi.orkas.rvtest.repository
 
 import fi.orkas.rvtest.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.request.request
+import io.ktor.client.plugins.resources.get
 import io.ktor.resources.Resource
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonNames
 
 @Serializable
 data class DiscoverResponse(val page: Int, val results: List<Result>, val totalPages: Int, val totalResults: Int)
@@ -33,73 +33,50 @@ data class Result(
 
 @OptIn(ExperimentalSerializationApi::class)
 @Resource("discover/movie")
-class DiscoverMovie constructor(
+data class DiscoverMovie(
     val certification: String? = null,
-    @JsonNames("certification.gte") val certificationGte: String? = null,
-    @JsonNames("certification.lte") val certificationLte: String? = null,
-    val certificationCountry: String? = null,
-    val includeAdult: Boolean? = false,
-    val includeVideo: Boolean? = false,
-    val language: String? = "en-US",
-    val page: Int? = 1,
-    val primaryReleaseYear: Int? = null,
-    val primaryReleaseDateGte: String? = null,
-    val primaryReleaseDateLte: String? = null,
+    @SerialName("certification.gte") val certificationGte: String? = null,
+    @SerialName("certification.lte") val certificationLte: String? = null,
+    @SerialName("certification_country") val certificationCountry: String? = null,
+    @SerialName("include_adult") val includeAdult: Boolean? = null,
+    @SerialName("include_video") val includeVideo: Boolean? = null,
+    val language: String? = null,
+    val page: Int? = null,
+    @SerialName("primary_release_year") val primaryReleaseYear: Int? = null,
+    @SerialName("primary_release_date.gte") val primaryReleaseDateGte: String? = null,
+    @SerialName("primary_release_date.lte") val primaryReleaseDateLte: String? = null,
     val region: String? = null,
-    val releaseDateGte: String? = null,
-    val releaseDateLte: String? = null,
-    val sortBy: String? = "popularity.desc",
-    val voteAverageGte: Float? = null,
-    val voteAverageLte: Float? = null,
-    val voteCountGte: Float? = null,
-    val voteCountLte: FLoat?= null,
-    val watchRegion: String? = null,
-    val withCast: String? = null,
-
-val withCompanies: String? = null,
-val withCrew: String? = null,
-val withGenres: String? = null,
-val with_keywords
-    string
-
-    can be a comma (AND) or pipe (OR) separated query
-val with_origin_country
-    string
-val with_original_language
-    string
-val with_people
-    string
-
-    can be a comma (AND) or pipe (OR) separated query
-val with_release_type
-    int32
-
-    possible values are: [1, 2, 3, 4, 5, 6] can be a comma (AND) or pipe (OR) separated query, can be used in conjunction with region
-val with_runtime.gte
-    int32
-val with_runtime.lte
-    int32
-val with_watch_monetization_types
-    string
-
-    possible values are: [flatrate, free, ads, rent, buy] use in conjunction with watch_region, can be a comma (AND) or pipe (OR) separated query
-val with_watch_providers
-    string
-
-    use in conjunction with watch_region, can be a comma (AND) or pipe (OR) separated query
-val without_companies
-    string
-val without_genres
-    string
-val without_keywords
-    string
-val without_watch_providers
-    string
-val year
-    int32
+    @SerialName("release_date.gte") val releaseDateGte: String? = null,
+    @SerialName("release_date.lte") val releaseDateLte: String? = null,
+    @SerialName("sort_by") val sortBy: String? = null,
+    @SerialName("vote_average.gte") val voteAverageGte: Float? = null,
+    @SerialName("vote_average.lte") val voteAverageLte: Float? = null,
+    @SerialName("vote_count.gte") val voteCountGte: Float? = null,
+    @SerialName("vote_count.lte") val voteCountLte: Float? = null,
+    @SerialName("watch_region") val watchRegion: String? = null,
+    @SerialName("with_cast") val withCast: String? = null,
+    @SerialName("with_companies") val withCompanies: String? = null,
+    @SerialName("with_crew") val withCrew: String? = null,
+    @SerialName("with_genres") val withGenres: String? = null,
+    @SerialName("with_keywords") val withKeywords: String? = null,
+    @SerialName("with_origin_country") val withOriginCountry: String? = null,
+    @SerialName("with_original_language") val withOriginalLanguage: String? = null,
+    @SerialName("with_people") val withPeople: String? = null,
+    @SerialName("with_release_type") val withReleaseType: Int? = null,
+    @SerialName("with_runtime.gte") val withRuntimeGte: Int? = null,
+    @SerialName("with_runtime.lte") val withRuntimeLte: Int? = null,
+    @SerialName("with_watch_monetization_types") val withWatchMonetizationTypes: String? = null,
+    @SerialName("with_watch_providers") val withWatchProviders: String? = null,
+    @SerialName("without_companies") val withoutCompanies: String? = null,
+    @SerialName("without_genres") val withoutGenres: String? = null,
+    @SerialName("without_keywords") val withoutKeywords: String? = null,
+    @SerialName("without_watch_providers") val withoutWatchProviders: String? = null,
+    val year: Int? = null
 )
 
 @Singleton
 class DiscoverRepository @Inject constructor(private val httpClient: HttpClient) {
-    suspend fun movie(): DiscoverResponse = httpClient.client.request("discover/movie").body()
+    suspend fun movie(query: DiscoverMovie): DiscoverResponse? = runCatching {
+        httpClient.client.get(query).body<DiscoverResponse>()
+    }.getOrNull()
 }

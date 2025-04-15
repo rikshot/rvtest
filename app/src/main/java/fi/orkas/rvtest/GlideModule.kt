@@ -28,11 +28,11 @@ import io.ktor.client.plugins.cache.HttpCache
 import io.ktor.client.plugins.cache.storage.FileStorage
 import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.plugins.logging.ANDROID
+import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.request
-import io.ktor.client.statement.bodyAsChannel
-import io.ktor.utils.io.jvm.javaio.toInputStream
+import io.ktor.client.statement.bodyAsBytes
 import java.io.File
 import java.io.InputStream
 import java.util.Locale
@@ -74,7 +74,6 @@ class GlideModule : AppGlideModule() {
                     .dontAnimate()
                     .dontTransform()
                     .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .fallback(Color.BLACK.toDrawable())
                     .error(Color.BLACK.toDrawable())
                     .placeholder(Color.TRANSPARENT.toDrawable())
             )
@@ -91,6 +90,7 @@ class GlideModule : AppGlideModule() {
             install(ContentEncoding)
             install(Logging) {
                 logger = Logger.ANDROID
+                level = LogLevel.INFO
             }
         }
         registry.replace(GlideUrl::class.java, InputStream::class.java, KtorModelLoader.Factory(scope, glideHttpClient))
@@ -127,17 +127,22 @@ class KtorDataFetcher(
     private val url: GlideUrl
 ) : DataFetcher<InputStream> {
     private var job: Job? = null
+    private var inputStream: InputStream? = null
 
     override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in InputStream>) {
         job =
-            scope.launch { callback.onDataReady(httpClient.request(url.toURL()).bodyAsChannel().toInputStream()) }
+            scope.launch {
+                inputStream = httpClient.request(url.toURL()).bodyAsBytes().inputStream()
+                callback.onDataReady(inputStream)
+            }
     }
 
     override fun cleanup() {
-        job?.cancel()
+        inputStream?.close()
     }
 
     override fun cancel() {
+        inputStream?.close()
         job?.cancel()
     }
 

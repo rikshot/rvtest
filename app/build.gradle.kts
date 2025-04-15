@@ -87,6 +87,7 @@ dependencies {
     implementation(libs.ktor.client.encoding)
     implementation(libs.ktor.client.logging)
     implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.resources)
     implementation(libs.ktor.serialization.kotlinx.json)
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)

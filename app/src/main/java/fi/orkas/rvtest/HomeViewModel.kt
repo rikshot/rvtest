@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fi.orkas.rvtest.repository.ConfigurationRepository
+import fi.orkas.rvtest.repository.Details
 import fi.orkas.rvtest.repository.MovieRepository
 import fi.orkas.rvtest.repository.Result
 import javax.inject.Inject
@@ -24,41 +25,21 @@ class HomeViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val details = configurationRepository.details()
-            val nowPlaying =
-                Category(
-                    "Now Playing",
-                    movieRepository.nowPlaying().results.map { it ->
-                        it.copy(
-                            posterPath = "${details.images.secureBaseUrl}/${details.images.posterSizes[2]}${it.posterPath}"
-                        )
-                    }
-                )
-            val popular = Category(
-                "Popular",
-                movieRepository.popular().results.map { it ->
-                    it.copy(
-                        posterPath = "${details.images.secureBaseUrl}/${details.images.posterSizes[2]}${it.posterPath}"
-                    )
-                }
+            mutableCategories.value = listOf(
+                createCategory("Now Playing", details, movieRepository.nowPlaying().results),
+                createCategory("Popular", details, movieRepository.popular().results),
+                createCategory("Top Rated", details, movieRepository.topRated().results),
+                createCategory("Upcoming", details, movieRepository.upcoming().results)
             )
-            val topRated = Category(
-                "Top Rated",
-                movieRepository.topRated().results.map { it ->
-                    it.copy(
-                        posterPath = "${details.images.secureBaseUrl}/${details.images.posterSizes[2]}${it.posterPath}"
-                    )
-                }
-            )
-            val upcoming = Category(
-                "Upcoming",
-                movieRepository.upcoming().results.map { it ->
-                    it.copy(
-                        posterPath = "${details.images.secureBaseUrl}/${details.images.posterSizes[2]}${it.posterPath}"
-                    )
-                }
-            )
-
-            mutableCategories.value = listOf(nowPlaying, popular, topRated, upcoming)
         }
     }
+
+    private fun createCategory(title: String, details: Details, movies: List<Result>): Category = Category(
+        title,
+        movies.map { it ->
+            it.copy(
+                posterPath = "${details.images.secureBaseUrl}/${details.images.posterSizes[2]}${it.posterPath}"
+            )
+        }
+    )
 }

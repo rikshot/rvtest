@@ -12,6 +12,7 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.ANDROID
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.resources.Resources
 import io.ktor.client.request.header
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
@@ -39,10 +40,7 @@ class HttpClient @Inject constructor(@ApplicationContext private val context: Co
         install(HttpCache) {
             publicStorage(FileStorage(File(context.cacheDir, "api")))
         }
-        install(ContentEncoding) {
-            gzip()
-            deflate()
-        }
+        install(ContentEncoding)
         install(ContentNegotiation) {
             json(
                 Json {
@@ -50,6 +48,7 @@ class HttpClient @Inject constructor(@ApplicationContext private val context: Co
                 }
             )
         }
+        install(Resources)
         install(Logging) {
             logger = Logger.ANDROID
             sanitizeHeader { header -> header == HttpHeaders.Authorization }

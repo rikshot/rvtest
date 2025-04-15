@@ -88,10 +88,7 @@ class GlideModule : AppGlideModule() {
             install(HttpCache) {
                 publicStorage(FileStorage(File(context.cacheDir, "glide")))
             }
-            install(ContentEncoding) {
-                gzip()
-                deflate()
-            }
+            install(ContentEncoding)
             install(Logging) {
                 logger = Logger.ANDROID
             }

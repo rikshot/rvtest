@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import fi.orkas.rvtest.databinding.FragmentHomeBinding
@@ -30,7 +31,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         viewCache.cache(requireContext(), lifecycleScope, R.layout.category, 4)
         viewCache.cache(requireContext(), lifecycleScope, R.layout.card, 21)
 
-        verticalAdapter = VerticalAdapter(this, viewCache)
+        verticalAdapter = VerticalAdapter(this, viewCache) { id ->
+            findNavController().navigate(route = Details(id))
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

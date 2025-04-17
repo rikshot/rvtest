@@ -18,6 +18,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object Home
 
+@Serializable
+data class Details(val id: Int)
+
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
@@ -34,6 +37,9 @@ class MainActivity : AppCompatActivity() {
         navController.graph = navController.createGraph(startDestination = Home) {
             fragment<HomeFragment, Home> {
                 label = "Home"
+            }
+            fragment<DetailsFragment, Details> {
+                label = "Details"
             }
         }
 

@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 data class DatedDiscoveryResponse(
     val dates: Dates,
     val page: Int,
-    val results: List<Result>,
+    val results: List<MovieResult>,
     val totalPages: Int,
     val totalResults: Int
 )

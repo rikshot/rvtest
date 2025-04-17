@@ -5,7 +5,6 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.AsyncDifferConfig
@@ -15,25 +14,28 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.ListPreloader
+import com.bumptech.glide.ListPreloader.PreloadSizeProvider
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
-import com.bumptech.glide.util.FixedPreloadSizeProvider
 import fi.orkas.rvtest.databinding.CategoryBinding
-import fi.orkas.rvtest.repository.Result
+import fi.orkas.rvtest.repository.MediaCard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 
 class CategoryViewHolder(val binding: CategoryBinding, val adapter: HorizontalAdapter) :
     RecyclerView.ViewHolder(binding.root)
 
-class VerticalAdapter(internal val fragment: Fragment, internal val viewCache: ViewCache) :
-    ListAdapter<Category, CategoryViewHolder>(
-        AsyncDifferConfig.Builder<Category>(diffCallback)
-            .setBackgroundThreadExecutor(
-                Dispatchers.Default.asExecutor()
-            ).build()
-    ) {
-    internal val preloader: RecyclerViewPreloader<Result>
+open class VerticalAdapter(
+    internal val fragment: Fragment,
+    internal val viewCache: ViewCache,
+    internal val onClick: (Int) -> Unit
+) : ListAdapter<Category, CategoryViewHolder>(
+    AsyncDifferConfig.Builder<Category>(diffCallback)
+        .setBackgroundThreadExecutor(
+            Dispatchers.Default.asExecutor()
+        ).build()
+) {
+    internal val preloader: RecyclerViewPreloader<MediaCard>
     private val recyclerViewPool = RecyclerView.RecycledViewPool()
 
     private val horizontalStates = HashMap<Int, Parcelable?>()
@@ -43,10 +45,13 @@ class VerticalAdapter(internal val fragment: Fragment, internal val viewCache: V
         setHasStableIds(true)
         recyclerViewPool.setMaxRecycledViews(0, 21)
 
-        val sizeProvider = FixedPreloadSizeProvider<Result>(POSTER_WIDTH, POSTER_HEIGHT)
+        val sizeProvider = object : PreloadSizeProvider<MediaCard> {
+            override fun getPreloadSize(item: MediaCard, adapterPosition: Int, perItemPosition: Int): IntArray? =
+                listOf(item.width, item.height).toIntArray()
+        }
         val modelProvider =
-            object : ListPreloader.PreloadModelProvider<Result> {
-                override fun getPreloadItems(position: Int): List<Result> {
+            object : ListPreloader.PreloadModelProvider<MediaCard> {
+                override fun getPreloadItems(position: Int): List<MediaCard> {
                     val item = getItem(position)
                     return if (item.movies.isNotEmpty()) {
                         val range = horizontalPositions.getOrElse(position) { 0..7 }
@@ -57,12 +62,12 @@ class VerticalAdapter(internal val fragment: Fragment, internal val viewCache: V
                     }
                 }
 
-                override fun getPreloadRequestBuilder(item: Result): RequestBuilder<*>? = Glide
+                override fun getPreloadRequestBuilder(item: MediaCard): RequestBuilder<*>? = Glide
                     .with(fragment)
-                    .load(item.posterPath.toUri())
-                    .override(POSTER_WIDTH, POSTER_HEIGHT)
+                    .load(item.posterUrl)
+                    .override(item.width, item.height)
             }
-        preloader = RecyclerViewPreloader<Result>(fragment, modelProvider, sizeProvider, 3)
+        preloader = RecyclerViewPreloader<MediaCard>(fragment, modelProvider, sizeProvider, 3)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {

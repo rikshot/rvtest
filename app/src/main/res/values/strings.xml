@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">rvtest</string>
     <string name="poster">Poster</string>
+    <string name="close">Close</string>
+    <string name="backdrop">Backdrop</string>
 </resources>

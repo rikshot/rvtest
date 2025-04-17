@@ -11,10 +11,10 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class DiscoverResponse(val page: Int, val results: List<Result>, val totalPages: Int, val totalResults: Int)
+data class DiscoverResponse(val page: Int, val results: List<MovieResult>, val totalPages: Int, val totalResults: Int)
 
 @Serializable
-data class Result(
+data class MovieResult(
     val adult: Boolean,
     val backdropPath: String,
     val genreIds: List<Int>,
@@ -29,7 +29,9 @@ data class Result(
     val video: Boolean,
     val voteAverage: Float,
     val voteCount: Int
-)
+) : IMedia
+
+interface IMedia
 
 @OptIn(ExperimentalSerializationApi::class)
 @Resource("discover/movie")

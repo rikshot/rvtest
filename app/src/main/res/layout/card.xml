@@ -2,38 +2,33 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="180px"
-    android:layout_height="match_parent"
+    android:layout_width="180dp"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="10dp"
     android:clickable="true"
     android:focusable="true"
-    android:orientation="vertical"
-    tools:ignore="PxUsage">
+    android:orientation="vertical">
 
-    <androidx.appcompat.widget.AppCompatImageView
+    <ImageView
         android:id="@+id/poster"
-        android:layout_width="180px"
-        android:layout_height="267px"
+        android:layout_width="180dp"
+        android:layout_height="270dp"
         android:layout_marginBottom="5dp"
         android:background="@drawable/rounded_corners"
         android:contentDescription="@string/poster"
-        tools:ignore="PxUsage" />
+        android:scaleType="center"
+        tools:src="@tools:sample/backgrounds/scenic" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/title"
         style="@style/TextAppearance.AppCompat.Subhead"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="5dp"
         android:layout_marginBottom="5dp"
-        android:ellipsize="none"
-        android:maxWidth="180px"
-        android:maxLines="2"
-        android:scrollHorizontally="false"
-        app:emojiCompatEnabled="false" />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/genre"
-        style="@style/TextAppearance.AppCompat.Body1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:emojiCompatEnabled="false" />
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
+        app:emojiCompatEnabled="false"
+        tools:text="Title" />
 </LinearLayout>

@@ -4,7 +4,9 @@ import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.cache.HttpCache
+import io.ktor.client.plugins.cache.InvalidCacheStateException
 import io.ktor.client.plugins.cache.storage.FileStorage
 import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -37,9 +39,13 @@ class HttpClient @Inject constructor(@ApplicationContext private val context: Co
                 "Bearer ${BuildConfig.API_TOKEN}"
             )
         }
-
         install(HttpCache) {
             publicStorage(FileStorage(File(context.cacheDir, "api")))
+        }
+        install(HttpRequestRetry) {
+            retryOnExceptionIf { request, exception ->
+                exception is InvalidCacheStateException
+            }
         }
         install(ContentEncoding)
         install(ContentNegotiation) {

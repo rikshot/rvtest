@@ -1,9 +1,7 @@
 package fi.orkas.rvtest
 
-import android.graphics.Rect
 import android.os.Parcelable
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -14,9 +12,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.ListPreloader
-import com.bumptech.glide.ListPreloader.PreloadSizeProvider
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
+import com.bumptech.glide.util.ViewPreloadSizeProvider
+import fi.orkas.rvtest.databinding.CardBinding
 import fi.orkas.rvtest.databinding.CategoryBinding
 import fi.orkas.rvtest.repository.MediaCard
 import kotlinx.coroutines.Dispatchers
@@ -45,10 +44,8 @@ open class VerticalAdapter(
         setHasStableIds(true)
         recyclerViewPool.setMaxRecycledViews(0, 21)
 
-        val sizeProvider = object : PreloadSizeProvider<MediaCard> {
-            override fun getPreloadSize(item: MediaCard, adapterPosition: Int, perItemPosition: Int): IntArray? =
-                listOf(item.width, item.height).toIntArray()
-        }
+        val binding = CardBinding.inflate(LayoutInflater.from(fragment.context))
+        val sizeProvider = ViewPreloadSizeProvider<MediaCard>(binding.poster)
         val modelProvider =
             object : ListPreloader.PreloadModelProvider<MediaCard> {
                 override fun getPreloadItems(position: Int): List<MediaCard> {
@@ -64,8 +61,8 @@ open class VerticalAdapter(
 
                 override fun getPreloadRequestBuilder(item: MediaCard): RequestBuilder<*>? = Glide
                     .with(fragment)
-                    .load(item.posterUrl)
-                    .override(item.width, item.height)
+                    .load(item.poster)
+                    .thumbnail(Glide.with(fragment).load(item.thumbnail))
             }
         preloader = RecyclerViewPreloader<MediaCard>(fragment, modelProvider, sizeProvider, 3)
     }
@@ -79,26 +76,13 @@ open class VerticalAdapter(
         val adapter = HorizontalAdapter(this)
         binding.category.apply {
             setHasFixedSize(true)
-            addItemDecoration(
-                object : RecyclerView.ItemDecoration() {
-                    override fun getItemOffsets(
-                        outRect: Rect,
-                        view: View,
-                        parent: RecyclerView,
-                        state: RecyclerView.State
-                    ) {
-                        outRect.right = 10
-                    }
-                }
-            )
             layoutManager =
                 ExtraSpaceLinearLayoutManager(parent.context, RecyclerView.HORIZONTAL, false).apply {
                     initialPrefetchItemCount = 7
                 }
             setRecycledViewPool(recyclerViewPool)
             setItemViewCacheSize(0)
-            this.adapter = adapter
-        }
+        }.adapter = adapter
         return CategoryViewHolder(binding, adapter)
     }
 

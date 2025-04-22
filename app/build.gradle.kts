@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.room)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.secrets)
@@ -46,7 +45,6 @@ android {
             initWith(buildTypes.getByName("release"))
             signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += listOf("release")
-            isDebuggable = false
         }
     }
     compileOptions {
@@ -60,10 +58,6 @@ android {
         buildConfig = true
         viewBinding = true
     }
-    room {
-        schemaDirectory("$projectDir/schemas")
-        generateKotlin = true
-    }
     buildToolsVersion = "36.0.0"
 }
 
@@ -74,8 +68,7 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui)
     implementation(libs.androidx.recyclerview)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.paging.runtime)
     implementation(libs.glide)
     implementation(libs.glide.recyclerview) {
         isTransitive = true
@@ -90,7 +83,6 @@ dependencies {
     implementation(libs.ktor.client.resources)
     implementation(libs.ktor.serialization.kotlinx.json)
     ksp(libs.hilt.compiler)
-    ksp(libs.androidx.room.compiler)
     ksp(libs.glide.ksp)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

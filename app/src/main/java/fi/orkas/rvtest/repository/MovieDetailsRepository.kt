@@ -18,7 +18,7 @@ data class DetailsResponse(
     val genres: List<Genre>,
     val homepage: String,
     val id: Int,
-    val imdbId: String,
+    val imdbId: String?,
     val originCountry: List<String>,
     val originalLanguage: String,
     val originalTitle: String,

@@ -11,19 +11,32 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class DiscoverResponse(val page: Int, val results: List<MovieResult>, val totalPages: Int, val totalResults: Int)
+sealed class PagedResponse<T : Any> {
+    abstract val page: Int
+    abstract val results: List<T>
+    abstract val totalPages: Int
+    abstract val totalResults: Int
+}
+
+@Serializable
+class DiscoverResponse<T : Any>(
+    override val page: Int,
+    override val results: List<T>,
+    override val totalPages: Int,
+    override val totalResults: Int
+) : PagedResponse<T>()
 
 @Serializable
 data class MovieResult(
     val adult: Boolean,
-    val backdropPath: String,
+    val backdropPath: String?,
     val genreIds: List<Int>,
     val id: Int,
     val originalLanguage: String,
     val originalTitle: String,
     val overview: String,
     val popularity: Float,
-    val posterPath: String,
+    val posterPath: String?,
     val releaseDate: String,
     val title: String,
     val video: Boolean,
@@ -78,7 +91,7 @@ data class DiscoverMovie(
 
 @Singleton
 class DiscoverRepository @Inject constructor(private val httpClient: HttpClient) {
-    suspend fun movie(query: DiscoverMovie): DiscoverResponse? = runCatching {
-        httpClient.client.get(query).body<DiscoverResponse>()
-    }.getOrNull()
+    fun movie(query: DiscoverMovie) = MovieListPagingSource<MovieResult>(20) { page ->
+        httpClient.client.get(query.copy(page = page)).body<DiscoverResponse<MovieResult>>()
+    }
 }

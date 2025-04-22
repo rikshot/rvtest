@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import fi.orkas.rvtest.databinding.FragmentHomeBinding
 import javax.inject.Inject
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -37,7 +38,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                homeViewModel.categories.collect { categories ->
+                homeViewModel.categories.collectLatest { categories ->
                     verticalAdapter.submitList(categories)
                 }
             }
@@ -47,12 +48,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = FragmentHomeBinding.inflate(inflater)
         binding.categories.apply {
+            itemAnimator = null
             setHasFixedSize(true)
             setItemViewCacheSize(0)
             layoutManager =
                 ExtraSpaceLinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
             adapter = verticalAdapter
-            addOnScrollListener(verticalAdapter.preloader)
         }
         return binding.root
     }

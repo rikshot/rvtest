@@ -7,19 +7,19 @@ import androidx.recyclerview.widget.RecyclerView
 class ExtraSpaceLinearLayoutManager(context: Context, orientation: Int, reverseLayout: Boolean) :
     LinearLayoutManager(context, orientation, reverseLayout) {
 
-    private val screenWidth = context.resources.displayMetrics.widthPixels
-    private val screenHeight = context.resources.displayMetrics.heightPixels
+    private val horizontalExtraSpace = context.resources.displayMetrics.widthPixels / 2
+    private val verticalExtraSpace = context.resources.displayMetrics.heightPixels / 2
 
     override fun calculateExtraLayoutSpace(state: RecyclerView.State, extraLayoutSpace: IntArray) {
         when (orientation) {
             RecyclerView.VERTICAL -> {
-                extraLayoutSpace[0] = screenHeight
-                extraLayoutSpace[1] = screenHeight
+                extraLayoutSpace[0] = verticalExtraSpace
+                extraLayoutSpace[1] = verticalExtraSpace
             }
 
             RecyclerView.HORIZONTAL -> {
-                extraLayoutSpace[0] = screenWidth
-                extraLayoutSpace[1] = screenWidth
+                extraLayoutSpace[0] = horizontalExtraSpace
+                extraLayoutSpace[1] = horizontalExtraSpace
             }
         }
     }

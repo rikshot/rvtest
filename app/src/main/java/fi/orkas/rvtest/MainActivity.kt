@@ -27,7 +27,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Glide.get(this).preFillBitmapPool(PreFillType.Builder(POSTER_WIDTH, POSTER_HEIGHT))
+        val (width, height) = Pair(
+            resources.getDimensionPixelSize(R.dimen.card_width),
+            resources.getDimensionPixelSize(R.dimen.card_height)
+        )
+        Glide.get(this).preFillBitmapPool(PreFillType.Builder(width, height))
 
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)

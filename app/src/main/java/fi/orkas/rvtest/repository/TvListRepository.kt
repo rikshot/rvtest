@@ -8,12 +8,9 @@ import javax.inject.Singleton
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class TvListResponse(val page: Int, val results: List<TvResult>, val totalPages: Int, val totalResults: Int)
-
-@Serializable
 data class TvResult(
     val adult: Boolean,
-    val backdropPath: String,
+    val backdropPath: String?,
     val firstAirDate: String,
     val genreIds: List<Int>,
     val id: Int,
@@ -23,12 +20,15 @@ data class TvResult(
     val originalName: String,
     val overview: String,
     val popularity: Float,
-    val posterPath: String,
+    val posterPath: String?,
     val voteAverage: Float,
     val voteCount: Int
 ) : IMedia
 
 @Singleton
 class TvListRepository @Inject constructor(private val httpClient: HttpClient) {
-    suspend fun airingToday(): TvListResponse = httpClient.client.request("tv/airing_today").body()
+    val airingToday =
+        MovieListPagingSource<TvResult>(20) { page ->
+            httpClient.client.request("tv/airing_today?page=$page").body<DiscoverResponse<TvResult>>()
+        }
 }

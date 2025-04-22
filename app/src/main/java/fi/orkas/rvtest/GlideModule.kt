@@ -27,10 +27,6 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.cache.HttpCache
 import io.ktor.client.plugins.cache.storage.FileStorage
 import io.ktor.client.plugins.compression.ContentEncoding
-import io.ktor.client.plugins.logging.ANDROID
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.request
 import io.ktor.client.statement.bodyAsBytes
 import java.io.File
@@ -88,10 +84,6 @@ class GlideModule : AppGlideModule() {
                 publicStorage(FileStorage(File(context.cacheDir, "glide")))
             }
             install(ContentEncoding)
-            install(Logging) {
-                logger = Logger.ANDROID
-                level = LogLevel.INFO
-            }
         }
         registry.replace(GlideUrl::class.java, InputStream::class.java, KtorModelLoader.Factory(scope, glideHttpClient))
     }

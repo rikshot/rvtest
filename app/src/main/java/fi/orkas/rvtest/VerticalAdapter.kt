@@ -1,70 +1,45 @@
 package fi.orkas.rvtest
 
+import android.annotation.SuppressLint
 import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.ListPreloader
-import com.bumptech.glide.RequestBuilder
-import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader
-import com.bumptech.glide.util.ViewPreloadSizeProvider
-import fi.orkas.rvtest.databinding.CardBinding
 import fi.orkas.rvtest.databinding.CategoryBinding
-import fi.orkas.rvtest.repository.MediaCard
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
-class CategoryViewHolder(val binding: CategoryBinding, val adapter: HorizontalAdapter) :
+class CategoryViewHolder(val binding: CategoryBinding, val adapter: HorizontalAdapter, var job: Job? = null) :
     RecyclerView.ViewHolder(binding.root)
 
+@SuppressLint("RestrictedApi")
 open class VerticalAdapter(
     internal val fragment: Fragment,
     internal val viewCache: ViewCache,
     internal val onClick: (Int) -> Unit
 ) : ListAdapter<Category, CategoryViewHolder>(
     AsyncDifferConfig.Builder<Category>(diffCallback)
-        .setBackgroundThreadExecutor(
-            Dispatchers.Default.asExecutor()
-        ).build()
+        .setMainThreadExecutor(Dispatchers.Main.asExecutor())
+        .setBackgroundThreadExecutor(Dispatchers.Default.asExecutor())
+        .build()
 ) {
-    internal val preloader: RecyclerViewPreloader<MediaCard>
     private val recyclerViewPool = RecyclerView.RecycledViewPool()
 
     private val horizontalStates = HashMap<Int, Parcelable?>()
-    private val horizontalPositions = HashMap<Int, IntRange>()
 
     init {
         setHasStableIds(true)
         recyclerViewPool.setMaxRecycledViews(0, 21)
-
-        val binding = CardBinding.inflate(LayoutInflater.from(fragment.context))
-        val sizeProvider = ViewPreloadSizeProvider<MediaCard>(binding.poster)
-        val modelProvider =
-            object : ListPreloader.PreloadModelProvider<MediaCard> {
-                override fun getPreloadItems(position: Int): List<MediaCard> {
-                    val item = getItem(position)
-                    return if (item.movies.isNotEmpty()) {
-                        val range = horizontalPositions.getOrElse(position) { 0..7 }
-                        val validRange = 0..item.movies.size
-                        getItem(position).movies.slice(range.intersect(validRange))
-                    } else {
-                        listOf()
-                    }
-                }
-
-                override fun getPreloadRequestBuilder(item: MediaCard): RequestBuilder<*>? = Glide
-                    .with(fragment)
-                    .load(item.poster)
-                    .thumbnail(Glide.with(fragment).load(item.thumbnail))
-            }
-        preloader = RecyclerViewPreloader<MediaCard>(fragment, modelProvider, sizeProvider, 3)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
@@ -76,6 +51,7 @@ open class VerticalAdapter(
         val adapter = HorizontalAdapter(this)
         binding.category.apply {
             setHasFixedSize(true)
+            itemAnimator = null
             layoutManager =
                 ExtraSpaceLinearLayoutManager(parent.context, RecyclerView.HORIZONTAL, false).apply {
                     initialPrefetchItemCount = 7
@@ -83,18 +59,27 @@ open class VerticalAdapter(
             setRecycledViewPool(recyclerViewPool)
             setItemViewCacheSize(0)
         }.adapter = adapter
-        return CategoryViewHolder(binding, adapter)
+        return CategoryViewHolder(binding, adapter).apply {
+            adapter.addOnPagesUpdatedListener {
+                binding.category.layoutManager?.let { layoutManager ->
+                    if (!layoutManager.isSmoothScrolling) {
+                        horizontalStates[bindingAdapterPosition]?.let { state ->
+                            binding.category.layoutManager?.onRestoreInstanceState(state)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         val item = getItem(position)
-        holder.adapter.submitList(item.movies)
+        holder.job?.cancel()
+        holder.job = fragment.lifecycleScope.launch {
+            item.flow.flowWithLifecycle(fragment.lifecycle).collectLatest { data -> holder.adapter.submitData(data) }
+        }
 
         holder.binding.apply {
-            horizontalStates[position]?.let { state ->
-                category.layoutManager?.onRestoreInstanceState(state)
-            }
-
             title.text = item.title
 
             category.clearOnScrollListeners()
@@ -105,10 +90,6 @@ open class VerticalAdapter(
                         val position = holder.bindingAdapterPosition
                         val layoutManager = holder.binding.category.layoutManager as LinearLayoutManager
                         horizontalStates.put(position, layoutManager.onSaveInstanceState())
-                        horizontalPositions.put(
-                            position,
-                            layoutManager.findFirstVisibleItemPosition()..layoutManager.findLastVisibleItemPosition()
-                        )
                     }
                 }
             })

@@ -2,7 +2,7 @@ package fi.orkas.rvtest.repository
 
 import fi.orkas.rvtest.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.request.request
+import io.ktor.client.request.get
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 
 @Serializable
-data class DetailsResponse(
+data class MovieDetailsResponse(
     val adult: Boolean,
     val backdropPath: String?,
     val belongsToCollection: Collection?,
@@ -55,5 +55,5 @@ data class Language(val englishName: String, @JsonNames("iso_639_1") val iso6391
 
 @Singleton
 class MovieDetailsRepository @Inject constructor(private val httpClient: HttpClient) {
-    suspend fun details(id: Int): DetailsResponse = httpClient.client.request("movie/$id").body()
+    suspend fun details(id: Int): MovieDetailsResponse = httpClient.client.get("movie/$id").body()
 }

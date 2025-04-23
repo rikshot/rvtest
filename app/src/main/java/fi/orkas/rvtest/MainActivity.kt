@@ -16,10 +16,10 @@ import fi.orkas.rvtest.databinding.ActivityMainBinding
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object Home
+data object HomeRoute
 
 @Serializable
-data class Details(val id: Int)
+data class DetailsRoute(val id: Int, val type: DetailsType)
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -38,11 +38,11 @@ class MainActivity : AppCompatActivity() {
 
         val navHostFragment = binding.root.getFragment<NavHostFragment>()
         val navController = navHostFragment.navController
-        navController.graph = navController.createGraph(startDestination = Home) {
-            fragment<HomeFragment, Home> {
+        navController.graph = navController.createGraph(startDestination = HomeRoute) {
+            fragment<HomeFragment, HomeRoute> {
                 label = "Home"
             }
-            fragment<DetailsFragment, Details> {
+            fragment<DetailsFragment, DetailsRoute> {
                 label = "Details"
             }
         }

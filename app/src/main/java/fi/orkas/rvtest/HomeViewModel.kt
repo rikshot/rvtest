@@ -9,16 +9,17 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fi.orkas.rvtest.repository.ConfigurationRepository
+import fi.orkas.rvtest.repository.Details
 import fi.orkas.rvtest.repository.DiscoverMovie
 import fi.orkas.rvtest.repository.DiscoverRepository
 import fi.orkas.rvtest.repository.GenreRepository
+import fi.orkas.rvtest.repository.IMedia
 import fi.orkas.rvtest.repository.MediaCard
+import fi.orkas.rvtest.repository.MovieListPagingSource
 import fi.orkas.rvtest.repository.MovieListRepository
-import fi.orkas.rvtest.repository.MovieResult
 import fi.orkas.rvtest.repository.TvListRepository
-import fi.orkas.rvtest.repository.TvResult
-import fi.orkas.rvtest.repository.toMediaCard
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +28,7 @@ import kotlinx.coroutines.launch
 
 data class Category(val title: String, val flow: Flow<PagingData<MediaCard>>)
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val configurationRepository: ConfigurationRepository,
@@ -38,78 +40,41 @@ class HomeViewModel @Inject constructor(
     private val mutableCategories = MutableStateFlow<List<Category>>(listOf())
     val categories = mutableCategories.asStateFlow()
 
+    private fun createCategory(
+        details: Details,
+        title: String,
+        pagingSource: MovieListPagingSource<out IMedia>
+    ): Category = Category(
+        title,
+        Pager(PagingConfig(20)) {
+            pagingSource
+        }.flow.map { data ->
+            data.map { result: IMedia ->
+                result.toMediaCard(details)
+            }
+        }.cachedIn(viewModelScope)
+    )
+
     init {
         viewModelScope.launch {
             val details = configurationRepository.details()
 
-            mutableCategories.value +=
-                Category(
-                    "Now Playing",
-                    Pager(PagingConfig(20)) {
-                        movieListRepository.nowPlaying
-                    }.flow.map { data: PagingData<MovieResult> ->
-                        data.map { result: MovieResult ->
-                            result.toMediaCard(details)
-                        }
-                    }.cachedIn(viewModelScope)
-                )
-            mutableCategories.value +=
-                Category(
-                    "TV Airing Today",
-                    Pager(PagingConfig(20)) {
-                        tvListRepository.airingToday
-                    }.flow.map { data: PagingData<TvResult> ->
-                        data.map { result: TvResult ->
-                            result.toMediaCard(details)
-                        }
-                    }.cachedIn(viewModelScope)
-                )
-            mutableCategories.value +=
-                Category(
-                    "Popular",
-                    Pager(PagingConfig(20)) {
-                        movieListRepository.popular
-                    }.flow.map { data: PagingData<MovieResult> ->
-                        data.map { result: MovieResult ->
-                            result.toMediaCard(details)
-                        }
-                    }.cachedIn(viewModelScope)
-                )
-            mutableCategories.value +=
-                Category(
-                    "Top Rated",
-                    Pager(PagingConfig(20)) {
-                        movieListRepository.topRated
-                    }.flow.map { data: PagingData<MovieResult> ->
-                        data.map { result: MovieResult ->
-                            result.toMediaCard(details)
-                        }
-                    }.cachedIn(viewModelScope)
-                )
-            mutableCategories.value +=
-                Category(
-                    "Upcoming",
-                    Pager(PagingConfig(20)) {
-                        movieListRepository.upcoming
-                    }.flow.map { data: PagingData<MovieResult> ->
-                        data.map { result: MovieResult ->
-                            result.toMediaCard(details)
-                        }
-                    }.cachedIn(viewModelScope)
-                )
+            mutableCategories.value += createCategory(details, "Now Playing", movieListRepository.nowPlaying)
+            mutableCategories.value += createCategory(details, "TV Airing Today", tvListRepository.airingToday)
+            mutableCategories.value += createCategory(details, "Popular", movieListRepository.popular)
+            mutableCategories.value += createCategory(details, "TV On The Air", tvListRepository.onTheAir)
+            mutableCategories.value += createCategory(details, "Top Rated", movieListRepository.topRated)
+            mutableCategories.value += createCategory(details, "TV Popular", tvListRepository.popular)
+            mutableCategories.value += createCategory(details, "Upcoming", movieListRepository.upcoming)
+            mutableCategories.value += createCategory(details, "TV Top Rated", tvListRepository.topRated)
 
             genreRepository.movies().genres.forEach { genre ->
-                mutableCategories.value += Category(
+                mutableCategories.value += createCategory(
+                    details,
                     genre.name,
-                    Pager(PagingConfig(20)) {
-                        discoverRepository.movie(
-                            DiscoverMovie(withGenres = genre.id.toString())
-                        )
-                    }.flow.map { data: PagingData<MovieResult> ->
-                        data.map { result: MovieResult ->
-                            result.toMediaCard(details)
-                        }
-                    }.cachedIn(viewModelScope)
+                    discoverRepository.movie(
+                        DiscoverMovie(withGenres = genre.id.toString())
+                    )
                 )
             }
         }

@@ -1,7 +1,9 @@
 package fi.orkas.rvtest
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.os.Build
 import android.util.Log
 import androidx.core.graphics.drawable.toDrawable
 import com.bumptech.glide.Glide
@@ -31,7 +33,9 @@ import io.ktor.client.request.request
 import io.ktor.client.statement.bodyAsBytes
 import java.io.File
 import java.io.InputStream
+import java.security.cert.X509Certificate
 import java.util.Locale
+import javax.net.ssl.X509TrustManager
 import kotlin.math.roundToLong
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -80,6 +84,31 @@ class GlideModule : AppGlideModule() {
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
         val glideHttpClient = HttpClient(CIO) {
             expectSuccess = true
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                engine {
+                    https {
+                        trustManager =
+                            @SuppressLint("CustomX509TrustManager")
+                            object : X509TrustManager {
+                                @SuppressLint("TrustAllX509TrustManager")
+                                override fun checkClientTrusted(
+                                    chain: Array<out X509Certificate?>?,
+                                    authType: String?
+                                ) {
+                                }
+
+                                @SuppressLint("TrustAllX509TrustManager")
+                                override fun checkServerTrusted(
+                                    chain: Array<out X509Certificate?>?,
+                                    authType: String?
+                                ) {
+                                }
+
+                                override fun getAcceptedIssuers(): Array<out X509Certificate?>? = null
+                            }
+                    }
+                }
+            }
             install(HttpCache) {
                 publicStorage(FileStorage(File(context.cacheDir, "glide")))
             }

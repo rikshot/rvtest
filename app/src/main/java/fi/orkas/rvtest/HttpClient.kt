@@ -1,6 +1,8 @@
 package fi.orkas.rvtest
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -22,8 +24,10 @@ import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.date.getTimeMillis
 import java.io.File
+import java.security.cert.X509Certificate
 import javax.inject.Inject
 import javax.inject.Singleton
+import javax.net.ssl.X509TrustManager
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNamingStrategy
@@ -33,6 +37,25 @@ import kotlinx.serialization.json.JsonNamingStrategy
 class HttpClient @Inject constructor(@ApplicationContext private val context: Context) {
     val client = HttpClient(CIO) {
         expectSuccess = true
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            engine {
+                https {
+                    trustManager =
+                        @SuppressLint("CustomX509TrustManager")
+                        object : X509TrustManager {
+                            @SuppressLint("TrustAllX509TrustManager")
+                            override fun checkClientTrusted(chain: Array<out X509Certificate?>?, authType: String?) {
+                            }
+
+                            @SuppressLint("TrustAllX509TrustManager")
+                            override fun checkServerTrusted(chain: Array<out X509Certificate?>?, authType: String?) {
+                            }
+
+                            override fun getAcceptedIssuers(): Array<out X509Certificate?>? = null
+                        }
+                }
+            }
+        }
         defaultRequest {
             url("https://api.themoviedb.org/3/")
             header("accept", "application/json")

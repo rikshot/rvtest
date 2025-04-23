@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,7 +27,7 @@ class CategoryViewHolder(val binding: CategoryBinding, val adapter: HorizontalAd
 open class VerticalAdapter(
     internal val fragment: Fragment,
     internal val viewCache: ViewCache,
-    internal val onClick: (Int) -> Unit
+    internal val navController: NavController
 ) : ListAdapter<Category, CategoryViewHolder>(
     AsyncDifferConfig.Builder<Category>(diffCallback)
         .setMainThreadExecutor(Dispatchers.Main.asExecutor())
@@ -54,7 +55,7 @@ open class VerticalAdapter(
             itemAnimator = null
             layoutManager =
                 ExtraSpaceLinearLayoutManager(parent.context, RecyclerView.HORIZONTAL, false).apply {
-                    initialPrefetchItemCount = 7
+                    initialPrefetchItemCount = 10
                 }
             setRecycledViewPool(recyclerViewPool)
             setItemViewCacheSize(0)

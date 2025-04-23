@@ -1,5 +1,8 @@
 package fi.orkas.rvtest.repository
 
+import androidx.core.net.toUri
+import fi.orkas.rvtest.DetailsRoute
+import fi.orkas.rvtest.DetailsType
 import fi.orkas.rvtest.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.resources.get
@@ -42,9 +45,25 @@ data class MovieResult(
     val video: Boolean,
     val voteAverage: Float,
     val voteCount: Int
-) : IMedia
+) : IMedia {
+    override fun toMediaCard(details: Details): MediaCard = MediaCard(
+        id,
+        title,
+        posterPath?.let { posterPath ->
+            "${details.images.secureBaseUrl}${details.images.posterSizes[0]}$posterPath".toUri()
+        },
+        posterPath?.let { posterPath ->
+            "${details.images.secureBaseUrl}${details.images.posterSizes[3]}$posterPath".toUri()
+        },
+        onClick = { navController ->
+            navController.navigate(DetailsRoute(id, DetailsType.MOVIE))
+        }
+    )
+}
 
-interface IMedia
+interface IMedia {
+    fun toMediaCard(details: Details): MediaCard
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Resource("discover/movie")

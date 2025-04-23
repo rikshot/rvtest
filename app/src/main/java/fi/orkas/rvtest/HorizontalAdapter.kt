@@ -36,7 +36,7 @@ class HorizontalAdapter(private val parentAdapter: VerticalAdapter) :
                             .thumbnail(Glide.with(parentAdapter.fragment).load(item.thumbnail))
                     }
             }
-        preloader = RecyclerViewPreloader<MediaCard>(parentAdapter.fragment, modelProvider, sizeProvider, 7)
+        preloader = RecyclerViewPreloader<MediaCard>(parentAdapter.fragment, modelProvider, sizeProvider, 10)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaViewHolder {
@@ -55,7 +55,7 @@ class HorizontalAdapter(private val parentAdapter: VerticalAdapter) :
         getItem(position)?.let { item ->
             holder.binding.apply {
                 root.setOnClickListener {
-                    parentAdapter.onClick(item.id)
+                    item.onClick(parentAdapter.navController)
                 }
                 Glide
                     .with(poster)

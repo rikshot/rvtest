@@ -110,7 +110,7 @@ data class DiscoverMovie(
 
 @Singleton
 class DiscoverRepository @Inject constructor(private val httpClient: HttpClient) {
-    fun movie(query: DiscoverMovie) = MovieListPagingSource<MovieResult>(20) { page ->
+    fun movie(query: DiscoverMovie) = MovieListPagingSource<MovieResult> { page ->
         httpClient.client.get(query.copy(page = page)).body<DiscoverResponse<MovieResult>>()
     }
 }

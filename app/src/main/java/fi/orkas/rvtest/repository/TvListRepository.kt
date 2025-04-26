@@ -45,19 +45,19 @@ data class TvResult(
 @Singleton
 class TvListRepository @Inject constructor(private val httpClient: HttpClient) {
     val airingToday =
-        MovieListPagingSource<TvResult>(20) { page ->
+        MovieListPagingSource<TvResult> { page ->
             httpClient.client.request("tv/airing_today?page=$page").body<DiscoverResponse<TvResult>>()
         }
     val onTheAir =
-        MovieListPagingSource<TvResult>(20) { page ->
+        MovieListPagingSource<TvResult> { page ->
             httpClient.client.request("tv/on_the_air?page=$page").body<DiscoverResponse<TvResult>>()
         }
     val popular =
-        MovieListPagingSource<TvResult>(20) { page ->
+        MovieListPagingSource<TvResult> { page ->
             httpClient.client.request("tv/popular?page=$page").body<DiscoverResponse<TvResult>>()
         }
     val topRated =
-        MovieListPagingSource<TvResult>(20) { page ->
+        MovieListPagingSource<TvResult> { page ->
             httpClient.client.request("tv/top_rated?page=$page").body<DiscoverResponse<TvResult>>()
         }
 }

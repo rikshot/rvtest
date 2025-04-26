@@ -22,7 +22,6 @@ import io.ktor.client.plugins.resources.Resources
 import io.ktor.client.request.header
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.util.date.getTimeMillis
 import java.io.File
 import java.security.cert.X509Certificate
 import javax.inject.Inject
@@ -73,7 +72,7 @@ class HttpClient @Inject constructor(@ApplicationContext private val context: Co
             }
             modifyRequest {
                 if (cause is InvalidCacheStateException) {
-                    request.url.encodedParameters.append("refresh", getTimeMillis().toString())
+                    request.headers.append("accept-encoding", "")
                 }
             }
         }

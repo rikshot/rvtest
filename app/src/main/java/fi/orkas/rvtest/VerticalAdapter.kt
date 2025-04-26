@@ -10,7 +10,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import fi.orkas.rvtest.databinding.CategoryBinding
@@ -40,6 +39,7 @@ open class VerticalAdapter(
 
     init {
         setHasStableIds(true)
+        stateRestorationPolicy = StateRestorationPolicy.PREVENT_WHEN_EMPTY
         recyclerViewPool.setMaxRecycledViews(0, 21)
     }
 
@@ -62,11 +62,9 @@ open class VerticalAdapter(
         }.adapter = adapter
         return CategoryViewHolder(binding, adapter).apply {
             adapter.addOnPagesUpdatedListener {
-                binding.category.layoutManager?.let { layoutManager ->
-                    if (!layoutManager.isSmoothScrolling) {
-                        horizontalStates[bindingAdapterPosition]?.let { state ->
-                            binding.category.layoutManager?.onRestoreInstanceState(state)
-                        }
+                if (binding.category.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
+                    horizontalStates[absoluteAdapterPosition]?.let { state ->
+                        binding.category.layoutManager?.onRestoreInstanceState(state)
                     }
                 }
             }
@@ -77,7 +75,8 @@ open class VerticalAdapter(
         val item = getItem(position)
         holder.job?.cancel()
         holder.job = fragment.lifecycleScope.launch {
-            item.flow.flowWithLifecycle(fragment.lifecycle).collectLatest { data -> holder.adapter.submitData(data) }
+            item.flow.flowWithLifecycle(fragment.lifecycle)
+                .collectLatest { data -> holder.adapter.submitData(data) }
         }
 
         holder.binding.apply {
@@ -88,9 +87,10 @@ open class VerticalAdapter(
             category.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                     if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        val position = holder.bindingAdapterPosition
-                        val layoutManager = holder.binding.category.layoutManager as LinearLayoutManager
-                        horizontalStates.put(position, layoutManager.onSaveInstanceState())
+                        horizontalStates.put(
+                            holder.absoluteAdapterPosition,
+                            holder.binding.category.layoutManager?.onSaveInstanceState()
+                        )
                     }
                 }
             })

@@ -21,6 +21,8 @@ class HorizontalAdapter(private val parentAdapter: VerticalAdapter) :
     internal val preloader: RecyclerViewPreloader<MediaCard>
 
     init {
+        stateRestorationPolicy = StateRestorationPolicy.PREVENT_WHEN_EMPTY
+
         val binding = CardBinding.inflate(LayoutInflater.from(parentAdapter.fragment.context))
         val sizeProvider = ViewPreloadSizeProvider<MediaCard>(binding.poster)
         val modelProvider =

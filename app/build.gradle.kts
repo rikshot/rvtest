@@ -1,19 +1,32 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
-    alias(libs.plugins.secrets)
 }
 
 hilt {
     enableAggregatingTask = true
 }
 
-secrets {
-    propertiesFileName = "secret.properties"
-    defaultPropertiesFileName = "secret.default.properties"
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(23)
+    }
+}
+
+fun getApiToken(): String {
+    val properties = Properties()
+    val secretsFile = File("secret.properties")
+    if (secretsFile.exists()) {
+        secretsFile.inputStream().use { inputStream ->
+            properties.load(inputStream)
+        }
+    }
+    return properties.getProperty("API_TOKEN", providers.environmentVariable("API_TOKEN").getOrElse(""))
 }
 
 android {
@@ -26,6 +39,8 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("String", "API_TOKEN", "\"${getApiToken()}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -49,11 +64,11 @@ android {
     }
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_23
+        targetCompatibility = JavaVersion.VERSION_23
     }
     kotlinOptions {
-        jvmTarget = "21"
+        jvmTarget = "23"
     }
     buildFeatures {
         buildConfig = true

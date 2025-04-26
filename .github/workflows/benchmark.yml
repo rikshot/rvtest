@@ -1,0 +1,33 @@
+name: Benchmark
+on: [ push, workflow_dispatch ]
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '23'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run benchmark
+        run: ./gradlew benchmark:testDeviceBenchmarkAndroidTest -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect
+        env:
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+      - name: Archive benchmark artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark
+          path: |
+            benchmark/build/outputs/androidTest-results/managedDevice/**
+            benchmark/build/outputs/managed_device_android_test_additional_output/**

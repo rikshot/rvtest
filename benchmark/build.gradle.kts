@@ -3,6 +3,12 @@ plugins {
     alias(libs.plugins.kotlin.android)
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(23)
+    }
+}
+
 android {
     namespace = "fi.orkas.rvtest.benchmark"
     compileSdk = 35
@@ -24,11 +30,22 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_23
+        targetCompatibility = JavaVersion.VERSION_23
     }
     kotlinOptions {
-        jvmTarget = "21"
+        jvmTarget = "23"
+    }
+    testOptions {
+        managedDevices {
+            localDevices {
+                create("testDevice") {
+                    device = "Pixel Tablet"
+                    sdkVersion = 35
+                    systemImageSource = "google_apis_playstore_tablet"
+                }
+            }
+        }
     }
 
     targetProjectPath = ":app"

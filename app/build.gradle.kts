@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.baselineprofile)
 }
 
 hilt {
@@ -74,6 +75,9 @@ android {
         buildConfig = true
         viewBinding = true
     }
+    baselineProfile {
+        dexLayoutOptimization = true
+    }
     buildToolsVersion = "36.0.0"
 }
 
@@ -85,13 +89,20 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui)
     implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.profileinstaller)
+
+    implementation(libs.android.material)
+
     implementation(libs.androidx.paging.runtime)
+
     implementation(libs.glide)
     implementation(libs.glide.recyclerview) {
         isTransitive = true
     }
     implementation(libs.kotlinx.serialization.json)
+
     implementation(libs.hilt.android)
+
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.encoding)
@@ -99,9 +110,13 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.client.resources)
     implementation(libs.ktor.serialization.kotlinx.json)
+
     ksp(libs.hilt.compiler)
     ksp(libs.glide.ksp)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    "baselineProfile"(project(":benchmark"))
 }

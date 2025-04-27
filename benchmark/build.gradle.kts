@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.test)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.baselineprofile)
 }
 
 java {
@@ -20,14 +21,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR"
         testInstrumentationRunnerArguments["listener"] = "androidx.benchmark.junit4.SideEffectRunListener"
-    }
-
-    buildTypes {
-        create("benchmark") {
-            isDebuggable = true
-            signingConfig = getByName("debug").signingConfig
-            matchingFallbacks += listOf("release")
-        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_23
@@ -58,10 +51,4 @@ dependencies {
     implementation(libs.androidx.uiautomator)
     implementation(libs.androidx.benchmark.junit4)
     implementation(libs.androidx.benchmark.macro.junit4)
-}
-
-androidComponents {
-    beforeVariants(selector().all()) {
-        it.enable = it.buildType == "benchmark"
-    }
 }

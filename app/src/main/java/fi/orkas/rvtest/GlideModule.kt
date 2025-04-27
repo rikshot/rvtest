@@ -18,6 +18,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.bitmap_recycle.LruArrayPool
 import com.bumptech.glide.load.engine.bitmap_recycle.LruBitmapPool
 import com.bumptech.glide.load.engine.cache.LruResourceCache
+import com.bumptech.glide.load.engine.executor.createGlideCoroutineExecutor
 import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.load.model.ModelLoader
 import com.bumptech.glide.load.model.ModelLoaderFactory
@@ -44,6 +45,9 @@ import kotlinx.coroutines.launch
 
 @GlideModule
 class GlideModule : AppGlideModule() {
+
+    private val scope = CoroutineScope(Dispatchers.IO.limitedParallelism(Runtime.getRuntime().availableProcessors()))
+
     override fun isManifestParsingEnabled(): Boolean = false
 
     override fun applyOptions(context: Context, builder: GlideBuilder) {
@@ -65,7 +69,11 @@ class GlideModule : AppGlideModule() {
             """.trimMargin()
         )
 
+        val executor = createGlideCoroutineExecutor(scope)
         builder
+            .setSourceExecutor(executor)
+            .setDiskCacheExecutor(executor)
+            .setAnimationExecutor(executor)
             .setArrayPool(LruArrayPool(arrayPoolSize))
             .setMemoryCache(LruResourceCache(memoryCacheSize))
             .setBitmapPool(LruBitmapPool(bitmapPoolSize))
@@ -78,8 +86,6 @@ class GlideModule : AppGlideModule() {
                     .placeholder(Color.TRANSPARENT.toDrawable())
             )
     }
-
-    private val scope = CoroutineScope(Dispatchers.IO)
 
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
         val glideHttpClient = HttpClient(CIO) {

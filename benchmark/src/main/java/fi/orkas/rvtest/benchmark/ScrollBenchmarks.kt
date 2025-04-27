@@ -2,8 +2,6 @@ package fi.orkas.rvtest.benchmark
 
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingMetric
-import androidx.benchmark.macro.StartupMode
-import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -16,7 +14,7 @@ import org.junit.runner.RunWith
 private const val PACKAGE_NAME = "fi.orkas.rvtest"
 
 @RunWith(AndroidJUnit4::class)
-class ScrollBenchmark {
+class ScrollBenchmarks {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
@@ -31,19 +29,6 @@ class ScrollBenchmark {
         TraceSectionMetric("RV onCreateViewHolder %"),
         TraceSectionMetric("RV onBindViewHolder %")
     )
-
-    @Test
-    fun startup() = benchmarkRule.measureRepeated(
-        packageName = PACKAGE_NAME,
-        metrics = listOf(StartupTimingMetric()) + metrics,
-        startupMode = StartupMode.COLD,
-        iterations = 5,
-        setupBlock = {
-            pressHome()
-        }
-    ) {
-        startActivityAndWait()
-    }
 
     @Test
     fun vertical() = benchmarkRule.measureRepeated(

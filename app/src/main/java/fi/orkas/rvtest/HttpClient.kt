@@ -27,6 +27,7 @@ import java.security.cert.X509Certificate
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.net.ssl.X509TrustManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNamingStrategy
@@ -36,8 +37,9 @@ import kotlinx.serialization.json.JsonNamingStrategy
 class HttpClient @Inject constructor(@ApplicationContext private val context: Context) {
     val client = HttpClient(CIO) {
         expectSuccess = true
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            engine {
+        engine {
+            dispatcher = Dispatchers.IO.limitedParallelism(Runtime.getRuntime().availableProcessors())
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
                 https {
                     trustManager =
                         @SuppressLint("CustomX509TrustManager")

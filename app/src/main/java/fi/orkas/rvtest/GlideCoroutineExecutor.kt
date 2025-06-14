@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.launch
 
+@Suppress("UNCHECKED_CAST")
 class CoroutineExecutorService(private val scope: CoroutineScope) : ExecutorService {
     override fun shutdown() {}
 

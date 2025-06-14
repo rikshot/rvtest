@@ -6,7 +6,7 @@ plugins {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(23)
+        languageVersion = JavaLanguageVersion.of(24)
     }
 }
 
@@ -35,7 +35,7 @@ android {
                 create("testDevice") {
                     device = "Pixel Tablet"
                     sdkVersion = 35
-                    systemImageSource = "google_apis_playstore_tablet"
+                    systemImageSource = "aosp-atd"
                 }
             }
         }
@@ -46,7 +46,7 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.junit)
+    implementation(libs.androidx.junit.ktx)
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.uiautomator)
     implementation(libs.androidx.benchmark.junit4)

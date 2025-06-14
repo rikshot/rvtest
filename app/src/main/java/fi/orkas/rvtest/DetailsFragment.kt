@@ -40,7 +40,7 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
                         binding.title.text = details.title
                         binding.overview.text = details.overview
                         details.backdropPath?.let { backdropPath ->
-                            Glide.with(binding.backdrop).load(backdropPath).into(binding.backdrop)
+                            // Glide.with(binding.backdrop).load(backdropPath).into(binding.backdrop)
                         }
                     }
 

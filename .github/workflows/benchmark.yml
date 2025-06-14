@@ -21,7 +21,7 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - name: Run benchmark
-        run: ./gradlew benchmark:testDeviceBenchmarkAndroidTest -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect
+        run: ./gradlew benchmark:testDeviceBenchmarkReleaseAndroidTest -Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect
         env:
           API_TOKEN: ${{ secrets.API_TOKEN }}
       - name: Archive benchmark artifacts

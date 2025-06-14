@@ -46,7 +46,8 @@ import kotlinx.coroutines.launch
 @GlideModule
 class GlideModule : AppGlideModule() {
 
-    private val scope = CoroutineScope(Dispatchers.IO.limitedParallelism(Runtime.getRuntime().availableProcessors()))
+    private val scope =
+        CoroutineScope(Dispatchers.IO.limitedParallelism(Runtime.getRuntime().availableProcessors()))
 
     override fun isManifestParsingEnabled(): Boolean = false
 
@@ -120,7 +121,11 @@ class GlideModule : AppGlideModule() {
             }
             install(ContentEncoding)
         }
-        registry.replace(GlideUrl::class.java, InputStream::class.java, KtorModelLoader.Factory(scope, glideHttpClient))
+        registry.replace(
+            GlideUrl::class.java,
+            InputStream::class.java,
+            KtorModelLoader.Factory(scope, glideHttpClient)
+        )
     }
 
     companion object {

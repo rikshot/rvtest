@@ -15,7 +15,7 @@ hilt {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(23)
+        languageVersion = JavaLanguageVersion.of(24)
     }
 }
 
@@ -43,7 +43,7 @@ android {
 
         buildConfigField("String", "API_TOKEN", "\"${getApiToken()}\"")
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "fi.orkas.rvtest.HiltTestRunner"
     }
 
     buildTypes {
@@ -71,6 +71,21 @@ android {
     kotlinOptions {
         jvmTarget = "23"
     }
+    sourceSets.getByName("test") {
+        setRoot("src/sharedTest")
+    }
+    sourceSets.getByName("androidTest") {
+        setRoot("src/sharedTest")
+    }
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+        unitTests.all {
+            it.systemProperty("robolectric.logging", "stdout")
+            it.systemProperty("robolectric.logging.enabled", "true")
+        }
+    }
     buildFeatures {
         buildConfig = true
         viewBinding = true
@@ -95,13 +110,22 @@ dependencies {
 
     implementation(libs.androidx.paging.runtime)
 
+    implementation(libs.androidx.constraintlayout)
+
     implementation(libs.glide)
     implementation(libs.glide.recyclerview) {
         isTransitive = true
     }
+
     implementation(libs.kotlinx.serialization.json)
 
+    debugImplementation(libs.kotlinx.coroutines.test)
+
     implementation(libs.hilt.android)
+    testImplementation(libs.hilt.android.testing)
+    androidTestImplementation(libs.hilt.android.testing)
+
+    testImplementation(libs.logback.classic)
 
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
@@ -110,12 +134,29 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.client.resources)
     implementation(libs.ktor.serialization.kotlinx.json)
+    debugImplementation(libs.ktor.client.mock)
 
     ksp(libs.hilt.compiler)
     ksp(libs.glide.ksp)
 
+    debugImplementation(libs.androidx.fragment.testing.manifest)
+    androidTestImplementation(libs.androidx.fragment.testing)
+
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
+    testImplementation(libs.androidx.junit.ktx)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.test.runner)
+    testImplementation(libs.androidx.test.rules)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.espresso.core)
+
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit.ktx)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.rules)
+    debugImplementation(libs.androidx.test.monitor)
+    androidTestUtil(libs.androidx.test.services)
     androidTestImplementation(libs.androidx.espresso.core)
 
     "baselineProfile"(project(":benchmark"))
